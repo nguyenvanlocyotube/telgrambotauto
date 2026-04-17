@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+RUN echo "force rebuild v3"
+
 WORKDIR /app
 
 # Install dependencies
@@ -9,10 +11,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source
 COPY . .
 
-# Create data directory for SQLite
+# Create data directory
 RUN mkdir -p /app/data
 
-# Expose admin panel port
-EXPOSE 5000
+# Expose port (Flask)
+EXPOSE 3000
 
-CMD ["python", "-c", "print('Use docker-compose to run services')"]
+CMD ["python", "bot.py"]
