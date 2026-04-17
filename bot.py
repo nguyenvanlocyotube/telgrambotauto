@@ -31,19 +31,12 @@ from models import (
     OrderStatus, TransactionType
 )
 
-    engine = get_engine(config.DATABASE_URL)
-    init_db(engine)
-    print("DATABASE_URL:", config.DATABASE_URL)
-    print("DB:", config.DATABASE_URL)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
-
-engine = get_engine(config.DATABASE_URL)
-init_db(engine)
 
 def db():
     return get_session(engine)
@@ -1011,6 +1004,12 @@ threading.Thread(target=run_web).start()
 
 # ─── Main ─────────────────────────────────────────────────────
 def main():
+    global engine
+
+    # 👇 thêm 2 dòng này lên trên cùng
+    engine = get_engine(config.DATABASE_URL)
+    init_db(engine)
+    
     session = db()
     try:
         seed_data(session)
