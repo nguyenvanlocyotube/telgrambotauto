@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: shop_bot
+    restart: always
+    command: python bot.py
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/bot_data.db
+    depends_on: []
+    networks:
+      - botnet
+
+  admin:
+    build: .
+    container_name: shop_admin
+    restart: always
+    command: gunicorn -w 2 -b 0.0.0.0:5000 admin_app:app
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/bot_data.db
+    ports:
+      - "5000:5000"
+    networks:
+      - botnet
+
+networks:
+  botnet:
+    driver: bridge

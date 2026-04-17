@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Cài đặt{% endblock %}
+{% block page_title %}Cài đặt hệ thống{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-gear me-2"></i>Cài đặt bot</div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-4">
+            <label class="form-label">Tin nhắn chào mừng (/start)</label>
+            <textarea class="form-control" name="welcome_message" rows="6">{{ settings.get('welcome_message', '') }}</textarea>
+            <div class="text-muted mt-1" style="font-size:12px">Tin nhắn này hiển thị khi user gõ /start</div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Chế độ bảo trì</label>
+            <select class="form-select" name="maintenance_mode">
+              <option value="false" {{ 'selected' if settings.get('maintenance_mode') != 'true' }}>❌ Tắt (Bot hoạt động bình thường)</option>
+              <option value="true" {{ 'selected' if settings.get('maintenance_mode') == 'true' }}>🔧 Bật (Bot đang bảo trì)</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Thông báo bảo trì</label>
+            <textarea class="form-control" name="maintenance_message" rows="3">{{ settings.get('maintenance_message', '') }}</textarea>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Nạp tiền tối thiểu (đồng)</label>
+              <input type="number" class="form-control" name="min_deposit" value="{{ settings.get('min_deposit', '10000') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Bonus nạp tiền (%)</label>
+              <input type="number" class="form-control" name="bonus_rate" value="{{ settings.get('bonus_rate', '0') }}" min="0" max="100">
+              <div class="text-muted mt-1" style="font-size:12px">0 = không có bonus</div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary px-5">💾 Lưu cài đặt</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-info-circle me-2"></i>Thông tin hệ thống</div>
+      <div class="card-body">
+        <div class="d-flex flex-column gap-2" style="font-size:13px">
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Phiên bản</span>
+            <span style="font-weight:600">v1.0.0</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Database</span>
+            <span style="font-weight:600;color:#43e97b">SQLite ✅</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Admin port</span>
+            <code>5000</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="color:var(--accent2)"><i class="bi bi-exclamation-triangle me-2"></i>Lưu ý</div>
+      <div class="card-body" style="font-size:13px;color:var(--text-muted)">
+        <ul style="padding-left:16px;line-height:2">
+          <li>Đổi <code>BOT_TOKEN</code> trong file <code>.env</code></li>
+          <li>Đổi mật khẩu admin sau khi deploy</li>
+          <li>Backup database thường xuyên</li>
+          <li>ADMIN_IDS trong <code>.env</code> là Telegram ID của bạn</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

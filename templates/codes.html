@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Mã - {{ product.name }}{% endblock %}
+{% block page_title %}Quản lý mã: {{ product.name }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-5">
+    <!-- Product info -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-info-circle me-2"></i>Thông tin sản phẩm</div>
+      <div class="card-body">
+        <div style="font-weight:600;font-size:15px;margin-bottom:8px">{{ product.name }}</div>
+        <div class="text-muted" style="font-size:13px;margin-bottom:12px">{{ product.description or 'Không có mô tả' }}</div>
+        <div class="d-flex gap-3">
+          <div><div style="font-size:11px;color:var(--text-muted)">GIÁ BÁN</div><div style="font-weight:700;color:#43e97b">{{ product.price | fmt_price }}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted)">TỒN KHO</div><div style="font-weight:700;{{ 'color:#43e97b' if product.stock > 0 else 'color:#ff6584' }}">{{ product.stock }} mã</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add codes form -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-plus-circle me-2"></i>Nhập mã mới</div>
+      <div class="card-body">
+        <form method="POST" action="/admin/products/{{ product.id }}/codes/add">
+          <div class="mb-3">
+            <label class="form-label">Nhập mã (mỗi dòng 1 mã)</label>
+            <textarea class="form-control" name="codes" rows="10"
+              placeholder="Dán mã vào đây, mỗi dòng 1 mã&#10;Ví dụ:&#10;email1@gmail.com|Password123&#10;email2@gmail.com|Pass456&#10;..."></textarea>
+            <div class="text-muted mt-1" style="font-size:12px">💡 Mỗi dòng 1 mã. Hỗ trợ mọi định dạng</div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-upload me-1"></i>Nhập mã
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete available -->
+    <div class="card">
+      <div class="card-header" style="color:var(--accent2)"><i class="bi bi-trash me-2"></i>Xóa mã</div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size:13px">Xóa tất cả mã chưa bán ({{ product.stock }} mã)</p>
+        <form method="POST" action="/admin/products/{{ product.id }}/codes/delete-all-available"
+          onsubmit="return confirm('Xóa hết {{ product.stock }} mã chưa bán?')">
+          <button type="submit" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash me-1"></i>Xóa tất cả mã chưa bán
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="bi bi-upc-scan me-2"></i>Danh sách mã ({{ codes | length }})</span>
+        <div class="d-flex gap-2">
+          <span class="badge bg-success">Còn: {{ codes | selectattr('is_sold', 'equalto', False) | list | length }}</span>
+          <span class="badge bg-secondary">Đã bán: {{ codes | selectattr('is_sold', 'equalto', True) | list | length }}</span>
+        </div>
+      </div>
+      <div class="card-body p-0" style="max-height:600px;overflow-y:auto">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>#</th><th>Mã</th><th>Trạng thái</th><th>Ngày bán</th></tr></thead>
+          <tbody>
+            {% for code in codes %}
+            <tr>
+              <td style="color:var(--text-muted);font-size:11px">{{ code.id }}</td>
+              <td><code style="font-size:12px;word-break:break-all">{{ code.code_value[:60] }}{{ '...' if code.code_value | length > 60 }}</code></td>
+              <td>
+                <span class="badge {{ 'bg-danger' if code.is_sold else 'bg-success' }}" style="font-size:10px">
+                  {{ 'Đã bán' if code.is_sold else 'Còn hàng' }}
+                </span>
+              </td>
+              <td style="font-size:11px;color:var(--text-muted)">{{ code.sold_at | fmt_date if code.sold_at else '—' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center py-4 text-muted">Chưa có mã nào</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<a href="/admin/products" class="btn btn-sm mt-3" style="background:var(--hover);color:var(--text-muted)">← Quay lại</a>
+{% endblock %}

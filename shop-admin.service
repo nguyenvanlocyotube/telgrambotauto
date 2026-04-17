@@ -1,0 +1,21 @@
+# ============================================================
+# File: /etc/systemd/system/shop-admin.service
+# Chạy Admin Web Panel 24/7 bằng systemd
+# ============================================================
+[Unit]
+Description=Shop Ma Xa Hoi - Admin Web Panel
+After=network.target shop-bot.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/telegram-bot
+ExecStart=/home/ubuntu/telegram-bot/venv/bin/gunicorn -w 2 -b 0.0.0.0:5000 admin_app:app
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+EnvironmentFile=/home/ubuntu/telegram-bot/.env
+
+[Install]
+WantedBy=multi-user.target

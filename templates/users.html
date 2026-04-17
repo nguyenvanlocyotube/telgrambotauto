@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Khách hàng{% endblock %}
+{% block page_title %}Quản lý khách hàng{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span><i class="bi bi-people me-2"></i>Danh sách khách hàng ({{ total }})</span>
+    <form class="d-flex gap-2" method="GET">
+      <input class="form-control form-control-sm" name="q" placeholder="Tìm tên, ID, username..." value="{{ search }}" style="width:250px">
+      <button type="submit" class="btn btn-sm btn-primary">Tìm</button>
+    </form>
+  </div>
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead><tr>
+        <th>Khách hàng</th><th>Telegram ID</th><th>Số dư</th>
+        <th>Đã chi</th><th>Trạng thái</th><th>Ngày đăng ký</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="font-weight:500">{{ u.full_name or '—' }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">@{{ u.username or 'N/A' }}</div>
+          </td>
+          <td><code>{{ u.telegram_id }}</code></td>
+          <td style="font-weight:600;color:#43e97b">{{ u.balance | fmt_price }}</td>
+          <td style="color:var(--accent2)">{{ u.total_spent | fmt_price }}</td>
+          <td>
+            <span class="badge {{ 'bg-danger' if u.is_banned else 'bg-success' }}">
+              {{ '🚫 Đã cấm' if u.is_banned else '✅ Hoạt động' }}
+            </span>
+          </td>
+          <td style="font-size:12px;color:var(--text-muted)">{{ u.created_at | fmt_date }}</td>
+          <td><a href="/admin/users/{{ u.id }}" class="btn btn-sm" style="background:var(--hover);color:var(--text-muted)">Chi tiết</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center py-4 text-muted">Không tìm thấy người dùng</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if pages > 1 %}
+  <div class="card-body pt-0">
+    <nav><ul class="pagination pagination-sm mb-0">
+      {% for p in range(1, pages+1) %}
+      <li class="page-item {{ 'active' if p == page }}">
+        <a class="page-link" href="?page={{ p }}&q={{ search }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+    </ul></nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

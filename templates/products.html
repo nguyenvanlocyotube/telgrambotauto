@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Sản phẩm{% endblock %}
+{% block page_title %}Quản lý sản phẩm{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <!-- Add product form -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-plus-circle me-2"></i>Thêm sản phẩm mới</div>
+      <div class="card-body">
+        <form method="POST" action="/admin/products/add">
+          <div class="mb-3">
+            <label class="form-label">Danh mục</label>
+            <select class="form-select" name="category_id" required>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}">{{ cat.emoji }} {{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tên sản phẩm</label>
+            <input type="text" class="form-control" name="name" placeholder="VD: Facebook Via Cổ 2015" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            <textarea class="form-control" name="description" placeholder="Mô tả chi tiết sản phẩm..." rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Giá (đồng)</label>
+            <input type="number" class="form-control" name="price" placeholder="15000" min="0" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Thêm sản phẩm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products list -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="bi bi-box-seam me-2"></i>Danh sách sản phẩm ({{ products | length }})</span>
+        <form method="GET" class="d-flex gap-2">
+          <select class="form-select form-select-sm" name="cat" style="width:160px">
+            <option value="">Tất cả danh mục</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {{ 'selected' if cat_filter == cat.id|string }}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
+        </form>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>Sản phẩm</th><th>Giá</th><th>Tồn kho</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <tbody>
+            {% for p in products %}
+            <tr>
+              <td>
+                <div style="font-weight:500">{{ p.name }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">{{ p.category.emoji }} {{ p.category.name }}</div>
+              </td>
+              <td style="font-weight:600;color:#43e97b">{{ p.price | fmt_price }}</td>
+              <td>
+                <span class="{{ 'text-success' if p.stock > 0 else 'text-danger' }}" style="font-weight:600">{{ p.stock }}</span>
+              </td>
+              <td>
+                <span class="badge {{ 'bg-success' if p.is_active else 'bg-secondary' }}">
+                  {{ 'Đang bán' if p.is_active else 'Ẩn' }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="/admin/products/{{ p.id }}/codes" class="btn btn-sm btn-primary">Mã</a>
+                  <a href="/admin/products/{{ p.id }}/toggle" class="btn btn-sm" style="background:var(--hover);color:var(--text-muted)">
+                    {{ 'Ẩn' if p.is_active else 'Hiện' }}
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center py-4 text-muted">Chưa có sản phẩm</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

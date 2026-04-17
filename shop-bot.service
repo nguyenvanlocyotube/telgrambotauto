@@ -1,0 +1,22 @@
+# ============================================================
+# File: /etc/systemd/system/shop-bot.service
+# Chạy Telegram Bot 24/7 bằng systemd
+# ============================================================
+[Unit]
+Description=Shop Ma Xa Hoi - Telegram Bot
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/telegram-bot
+ExecStart=/home/ubuntu/telegram-bot/venv/bin/python bot.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+EnvironmentFile=/home/ubuntu/telegram-bot/.env
+
+[Install]
+WantedBy=multi-user.target

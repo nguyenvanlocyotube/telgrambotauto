@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Đơn hàng{% endblock %}
+{% block page_title %}Quản lý đơn hàng{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span><i class="bi bi-bag-fill me-2"></i>Danh sách đơn hàng ({{ total }})</span>
+    <form class="d-flex gap-2" method="GET">
+      <input class="form-control form-control-sm" name="q" placeholder="Tìm đơn/khách..." value="{{ search }}" style="width:200px">
+      <select class="form-select form-select-sm" name="status" style="width:140px">
+        <option value="">Tất cả</option>
+        <option value="completed" {{ 'selected' if status_filter == 'completed' }}>Hoàn thành</option>
+        <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Chờ xử lý</option>
+        <option value="cancelled" {{ 'selected' if status_filter == 'cancelled' }}>Đã hủy</option>
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
+    </form>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead><tr>
+          <th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th>
+          <th>Tổng tiền</th><th>Trạng thái</th><th>Thời gian</th><th></th>
+        </tr></thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><code>{{ order.order_code }}</code></td>
+            <td>
+              <div style="font-weight:500">{{ order.user.full_name[:25] if order.user else '—' }}</div>
+              <div style="font-size:11px;color:var(--text-muted)">{{ order.user.telegram_id if order.user else '' }}</div>
+            </td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ order.items | length }} sản phẩm</td>
+            <td style="font-weight:700;color:#43e97b">{{ order.total_amount | fmt_price }}</td>
+            <td>{{ order.status | status_badge }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ order.created_at | fmt_date }}</td>
+            <td><a href="/admin/orders/{{ order.id }}" class="btn btn-sm" style="background:var(--hover);color:var(--text-muted)">Xem</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center py-4 text-muted">Không có đơn hàng</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% if pages > 1 %}
+  <div class="card-body pt-0">
+    <nav><ul class="pagination pagination-sm mb-0">
+      {% for p in range(1, pages+1) %}
+      <li class="page-item {{ 'active' if p == page }}">
+        <a class="page-link" href="?page={{ p }}&status={{ status_filter }}&q={{ search }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+    </ul></nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

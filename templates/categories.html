@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Danh mục{% endblock %}
+{% block page_title %}Quản lý danh mục{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-plus-circle me-2"></i>Thêm danh mục mới</div>
+      <div class="card-body">
+        <form method="POST">
+          <input type="hidden" name="action" value="add">
+          <div class="mb-3">
+            <label class="form-label">Emoji</label>
+            <input type="text" class="form-control" name="emoji" value="📦" maxlength="5">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tên danh mục</label>
+            <input type="text" class="form-control" name="name" placeholder="VD: Facebook" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            <textarea class="form-control" name="description" placeholder="Mô tả danh mục..." rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Thứ tự hiển thị</label>
+            <input type="number" class="form-control" name="sort_order" value="99">
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Thêm danh mục</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-folder2 me-2"></i>Danh sách danh mục ({{ categories | length }})</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>Danh mục</th><th>Mô tả</th><th>Thứ tự</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td>
+                <span style="font-size:20px;margin-right:8px">{{ cat.emoji }}</span>
+                <span style="font-weight:600">{{ cat.name }}</span>
+              </td>
+              <td style="font-size:12px;color:var(--text-muted)">{{ cat.description[:40] if cat.description else '—' }}</td>
+              <td>{{ cat.sort_order }}</td>
+              <td><span class="badge {{ 'bg-success' if cat.is_active else 'bg-secondary' }}">{{ 'Hiển thị' if cat.is_active else 'Ẩn' }}</span></td>
+              <td>
+                <form method="POST" onsubmit="return confirm('Xóa danh mục {{ cat.name }}?')">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="id" value="{{ cat.id }}">
+                  <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

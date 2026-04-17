@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}{{ user.full_name }}{% endblock %}
+{% block page_title %}Chi tiết khách hàng{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-person-circle me-2"></i>Thông tin</div>
+      <div class="card-body">
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px">{{ user.full_name or '—' }}</div>
+        <div class="text-muted mb-1" style="font-size:13px">@{{ user.username or 'N/A' }}</div>
+        <code style="font-size:12px">{{ user.telegram_id }}</code>
+        <hr style="border-color:var(--border)">
+        <div class="row text-center g-2 mt-1">
+          <div class="col-6">
+            <div style="font-size:18px;font-weight:700;color:#43e97b">{{ user.balance | fmt_price }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">Số dư</div>
+          </div>
+          <div class="col-6">
+            <div style="font-size:18px;font-weight:700;color:var(--accent2)">{{ user.total_spent | fmt_price }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">Đã chi</div>
+          </div>
+        </div>
+        <hr style="border-color:var(--border)">
+        <div class="d-flex flex-column gap-1" style="font-size:12px;color:var(--text-muted)">
+          <div>📅 Đăng ký: {{ user.created_at | fmt_date }}</div>
+          <div>🕐 Hoạt động: {{ user.last_active | fmt_date }}</div>
+          <div>🎁 Ref code: <code>{{ user.referral_code }}</code></div>
+          <div>📊 Trạng thái:
+            <span class="badge {{ 'bg-danger' if user.is_banned else 'bg-success' }}">
+              {{ 'Đã cấm' if user.is_banned else 'Bình thường' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/deduct balance -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-wallet2 me-2"></i>Điều chỉnh số dư</div>
+      <div class="card-body">
+        <form method="POST" action="/admin/users/{{ user.id }}/add-balance">
+          <div class="mb-2">
+            <label class="form-label">Số tiền (âm để trừ)</label>
+            <input type="number" class="form-control" name="amount" placeholder="50000" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Ghi chú</label>
+            <input type="text" class="form-control" name="note" placeholder="Admin cộng tiền">
+          </div>
+          <button type="submit" class="btn btn-primary w-100 btn-sm">Xác nhận</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Ban/unban -->
+    <div class="card">
+      <div class="card-header" style="{{ 'color:var(--accent2)' if not user.is_banned else 'color:#43e97b' }}">
+        <i class="bi bi-shield me-2"></i>Quản lý tài khoản
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/admin/users/{{ user.id }}/ban"
+          onsubmit="return confirm('{{ 'Bỏ cấm' if user.is_banned else 'Cấm' }} user {{ user.full_name }}?')">
+          <button type="submit" class="btn btn-sm w-100 {{ 'btn-success' if user.is_banned else 'btn-danger' }}">
+            {{ '✅ Bỏ cấm user' if user.is_banned else '🚫 Cấm user này' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <!-- Orders -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-bag me-2"></i>Đơn hàng gần đây</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Mã đơn</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thời gian</th><th></th></tr></thead>
+          <tbody>
+            {% for o in orders %}
+            <tr>
+              <td><code>{{ o.order_code }}</code></td>
+              <td style="font-weight:600;color:#43e97b">{{ o.total_amount | fmt_price }}</td>
+              <td>{{ o.status | status_badge }}</td>
+              <td style="font-size:11px;color:var(--text-muted)">{{ o.created_at | fmt_date }}</td>
+              <td><a href="/admin/orders/{{ o.id }}" class="btn btn-sm" style="background:var(--hover);color:var(--text-muted);font-size:11px">Xem</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center py-3 text-muted">Chưa có đơn hàng</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="card">
+      <div class="card-header"><i class="bi bi-credit-card me-2"></i>Lịch sử giao dịch</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Loại</th><th>Số tiền</th><th>Số dư trước/sau</th><th>Mô tả</th><th>Thời gian</th></tr></thead>
+          <tbody>
+            {% for t in transactions %}
+            <tr>
+              <td>
+                <span class="badge {{ 'bg-success' if t.amount > 0 else 'bg-danger' }}">
+                  {{ '⬆️ Nạp' if t.type.value == 'deposit' else ('⬇️ Mua' if t.type.value == 'purchase' else '↩️ Hoàn') }}
+                </span>
+              </td>
+              <td style="font-weight:600;{{ 'color:#43e97b' if t.amount > 0 else 'color:var(--accent2)' }}">
+                {{ '+' if t.amount > 0 else '' }}{{ t.amount | fmt_price }}
+              </td>
+              <td style="font-size:11px;color:var(--text-muted)">{{ t.balance_before | fmt_price }} → {{ t.balance_after | fmt_price }}</td>
+              <td style="font-size:12px">{{ t.description[:40] if t.description else '—' }}</td>
+              <td style="font-size:11px;color:var(--text-muted)">{{ t.created_at | fmt_date }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center py-3 text-muted">Chưa có giao dịch</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<a href="/admin/users" class="btn btn-sm mt-3" style="background:var(--hover);color:var(--text-muted)">← Quay lại</a>
+{% endblock %}
