@@ -9,6 +9,22 @@ import random
 import string
 from datetime import datetime
 
+//thêm ở đây
+from flask import Flask
+import threading
+
+app_web = Flask(__name__)
+
+@app_web.route("/")
+def home():
+    return "Bot alive"
+
+def run_web():
+    app_web.run(host="0.0.0.0", port=3000)
+
+threading.Thread(target=run_web).start()
+//dừng ở đây
+
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup,
     ReplyKeyboardMarkup, KeyboardButton
