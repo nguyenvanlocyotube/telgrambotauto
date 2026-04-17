@@ -34,6 +34,7 @@ from models import (
     engine = get_engine(config.DATABASE_URL)
     init_db(engine)
     print("DATABASE_URL:", config.DATABASE_URL)
+    print("DB:", config.DATABASE_URL)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
