@@ -9,21 +9,9 @@ import random
 import string
 from datetime import datetime
 
-# ─── Sửa chỗ này ──────────────────────────────────────────────────
+# ─── sửa ở đây ──────────────────────────────────────────────────
 from flask import Flask
 import threading
-
-app_web = Flask(__name__)
-
-@app_web.route("/")
-def home():
-    return "Bot alive"
-
-def run_web():
-    app_web.run(host="0.0.0.0", port=3000)
-
-threading.Thread(target=run_web).start()
-# ─── Dừng chỗ này ──────────────────────────────────────────────────
 
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup,
@@ -42,6 +30,10 @@ from models import (
     Transaction, DepositRequest, BotSettings,
     OrderStatus, TransactionType
 )
+
+    engine = get_engine(config.DATABASE_URL)
+    init_db(engine)
+    print("DATABASE_URL:", config.DATABASE_URL)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -1002,6 +994,19 @@ async def admin_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ─── Error handler ────────────────────────────────────────────
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Update {update} caused error: {context.error}")
+
+# ─── Sửa ở đây ──────────────────────────────────────────────────
+
+app_web = Flask(__name__)
+
+@app_web.route("/")
+def home():
+    return "Bot alive"
+
+def run_web():
+    app_web.run(host="0.0.0.0", port=3000)
+
+threading.Thread(target=run_web).start()
 
 # ─── Main ─────────────────────────────────────────────────────
 def main():
