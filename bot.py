@@ -9,7 +9,7 @@ import random
 import string
 from datetime import datetime
 
-//thêm ở đây
+# ─── Sửa chỗ này ──────────────────────────────────────────────────
 from flask import Flask
 import threading
 
@@ -23,7 +23,7 @@ def run_web():
     app_web.run(host="0.0.0.0", port=3000)
 
 threading.Thread(target=run_web).start()
-//dừng ở đây
+# ─── Dừng chỗ này ──────────────────────────────────────────────────
 
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup,
